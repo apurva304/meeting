@@ -1,9 +1,14 @@
 package domain
 
 import (
+	"gethelpnow/cerror"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
+)
+
+var (
+	ErrMeetingNotFound = cerror.New("Meeting Not Found", 404)
 )
 
 type MeetingRepository interface {
