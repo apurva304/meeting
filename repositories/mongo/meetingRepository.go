@@ -53,7 +53,7 @@ func (repo *meetingRepository) List(start time.Time, end time.Time, skip int64, 
 	curr, err := repo.collection.Find(ctx, bson.M{"start_time": bson.M{"$gte": start, "$lte": end}}, opts...)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			err = domain.ErrMeetingNotFound
+			err = nil
 			return
 		}
 		return
@@ -75,7 +75,7 @@ func (repo *meetingRepository) ListByParticipant(participantEmail string, skip i
 	curr, err := repo.collection.Find(ctx, bson.M{"participants.email": participantEmail}, opts...)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			err = domain.ErrMeetingNotFound
+			err = nil
 			return
 		}
 		return
@@ -98,7 +98,7 @@ func (repo *meetingRepository) Count(start time.Time, end time.Time, emails []st
 	count, err = repo.collection.CountDocuments(ctx, filter, nil)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			err = domain.ErrMeetingNotFound
+			err = nil
 			return
 		}
 		return
