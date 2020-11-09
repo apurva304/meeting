@@ -18,7 +18,7 @@ func NewLoggingService(svc Service, logger *log.Logger) *loggingService {
 		logger:  logger,
 	}
 }
-func (svc *loggingService) Add(title string, start time.Time, end time.Time, participants []domain.Participant) (err error) {
+func (svc *loggingService) Add(title string, start time.Time, end time.Time, participants []domain.Participant) (meeting domain.Meeting, err error) {
 	defer func(begin time.Time) {
 		svc.logger.Println(
 			"method", "Add",

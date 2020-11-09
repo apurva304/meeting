@@ -20,7 +20,8 @@ type addRequest struct {
 }
 
 type addResponse struct {
-	Err error `json:"err,omitempty"`
+	Meeting domain.Meeting `json:"meeting"`
+	Err     error          `json:"err,omitempty"`
 }
 
 func makeAddEndpoint(svc Service) ctransport.Endpoint {
@@ -29,8 +30,8 @@ func makeAddEndpoint(svc Service) ctransport.Endpoint {
 		if !ok {
 			return nil, ErrBadRequest
 		}
-		err = svc.Add(req.Title, req.Start, req.End, req.Participants)
-		return addResponse{Err: err}, nil
+		meeting, err := svc.Add(req.Title, req.Start, req.End, req.Participants)
+		return addResponse{Meeting: meeting, Err: err}, nil
 	}
 }
 

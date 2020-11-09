@@ -13,7 +13,7 @@ var (
 )
 
 type Service interface {
-	Add(title string, start time.Time, end time.Time, participants []domain.Participant) (err error)
+	Add(title string, start time.Time, end time.Time, participants []domain.Participant) (meeting domain.Meeting, err error)
 	List(start time.Time, end time.Time, page pagination.Pagination) (meetings []domain.Meeting, err error)
 	ListByParticipant(email string, page pagination.Pagination) (meetings []domain.Meeting, err error)
 	Get(id string) (meeting domain.Meeting, err error)
@@ -29,7 +29,7 @@ func NewService(meetingRepo domain.MeetingRepository) *service {
 	}
 }
 
-func (svc *service) Add(title string, start time.Time, end time.Time, participants []domain.Participant) (err error) {
+func (svc *service) Add(title string, start time.Time, end time.Time, participants []domain.Participant) (meeting domain.Meeting, err error) {
 	if len(title) < 1 || start.IsZero() || end.IsZero() || start.After(end) || start.Before(time.Now()) || len(participants) < 1 {
 		err = ErrInvalidArgument
 		return
@@ -49,7 +49,7 @@ func (svc *service) Add(title string, start time.Time, end time.Time, participan
 		err = ErrInvalidMeeting
 		return
 	}
-	meeting := domain.NewMeeting(title, start, end, participants)
+	meeting = domain.NewMeeting(title, start, end, participants)
 
 	err = svc.meetingRepo.Add(meeting)
 	if err != nil {

@@ -48,7 +48,7 @@ func decodeAddRequest(r *http.Request) (request interface{}, err error) {
 	if err != nil {
 		return nil, ErrBadRequest
 	}
-	return
+	return req, nil
 }
 
 func encodeAddResponse(w http.ResponseWriter, response interface{}) error {
@@ -66,7 +66,7 @@ func decodeListRequest(r *http.Request) (request interface{}, err error) {
 	if err != nil {
 		return nil, ErrBadRequest
 	}
-	return
+	return req, nil
 }
 
 func encodeListResponse(w http.ResponseWriter, response interface{}) error {
@@ -84,7 +84,7 @@ func decodeListByParticipantRequest(r *http.Request) (request interface{}, err e
 	if err != nil {
 		return nil, ErrBadRequest
 	}
-	return
+	return req, nil
 }
 
 func encodeListByParticipantResponse(w http.ResponseWriter, response interface{}) error {

@@ -15,17 +15,20 @@ const (
 )
 
 type meetingRepository struct {
-	collection *mongo.Collection
+	client *mongo.Client
+	dbName string
 }
 
-func NewMeetingRepository(db *mongo.Database) *meetingRepository {
+func NewMeetingRepository(client *mongo.Client, dbName string) *meetingRepository {
 	return &meetingRepository{
-		collection: db.Collection(meetingCollectionName, nil),
+		client: client,
+		dbName: dbName,
 	}
 }
 
 func (repo *meetingRepository) Add(m domain.Meeting) (err error) {
-	_, err = repo.collection.InsertOne(context.TODO(), m, nil)
+	coll := repo.client.Database(repo.dbName).Collection(meetingCollectionName)
+	_, err = coll.InsertOne(context.TODO(), m)
 	if err != nil {
 		return
 	}
@@ -33,7 +36,8 @@ func (repo *meetingRepository) Add(m domain.Meeting) (err error) {
 	return
 }
 func (repo *meetingRepository) Get(id string) (meeting domain.Meeting, err error) {
-	err = repo.collection.FindOne(context.TODO(), bson.M{"_id": id}, nil).Decode(&meeting)
+	coll := repo.client.Database(repo.dbName).Collection(meetingCollectionName)
+	err = coll.FindOne(context.TODO(), bson.M{"_id": id}).Decode(&meeting)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			err = domain.ErrMeetingNotFound
@@ -50,7 +54,8 @@ func (repo *meetingRepository) List(start time.Time, end time.Time, skip int64, 
 	}
 	ctx := context.TODO()
 
-	curr, err := repo.collection.Find(ctx, bson.M{"start_time": bson.M{"$gte": start, "$lte": end}}, opts...)
+	coll := repo.client.Database(repo.dbName).Collection(meetingCollectionName)
+	curr, err := coll.Find(ctx, bson.M{"start_time": bson.M{"$gte": start, "$lte": end}}, opts...)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			err = nil
@@ -72,7 +77,8 @@ func (repo *meetingRepository) ListByParticipant(participantEmail string, skip i
 	}
 	ctx := context.TODO()
 
-	curr, err := repo.collection.Find(ctx, bson.M{"participants.email": participantEmail}, opts...)
+	coll := repo.client.Database(repo.dbName).Collection(meetingCollectionName)
+	curr, err := coll.Find(ctx, bson.M{"participants.email": participantEmail}, opts...)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			err = nil
@@ -95,7 +101,9 @@ func (repo *meetingRepository) Count(start time.Time, end time.Time, emails []st
 
 	filter := bson.M{"participants.email": bson.M{"$in": emails}, "$or": []bson.M{startM, endM}}
 
-	count, err = repo.collection.CountDocuments(ctx, filter, nil)
+	coll := repo.client.Database(repo.dbName).Collection(meetingCollectionName)
+
+	count, err = coll.CountDocuments(ctx, filter)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			err = nil

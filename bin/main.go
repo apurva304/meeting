@@ -20,7 +20,7 @@ import (
 )
 
 var (
-	ctx            = context.Background()
+	ctx            = context.TODO()
 	configFileName = "config.json"
 )
 
@@ -50,16 +50,19 @@ func main() {
 		dbUri = fmt.Sprintf("mongodb://%s:%s@%s", config.Mongo.UserName, config.Mongo.Password, config.Mongo.Address)
 	}
 
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(dbUri))
+	client, err := mongo.NewClient(options.Client().ApplyURI(dbUri))
+	if err != nil {
+		panic(err)
+	}
+
+	err = client.Connect(ctx)
 	if err != nil {
 		panic(err)
 	}
 
 	defer client.Disconnect(ctx)
 
-	db := client.Database(config.Mongo.DBName, nil)
-
-	repo := repositories.NewMeetingRepository(db)
+	repo := repositories.NewMeetingRepository(client, config.Mongo.DBName)
 
 	service := ser.NewService(repo)
 	svc := ser.NewLoggingService(service, logger)

@@ -11,6 +11,11 @@ type mockRepo struct {
 	sync.Mutex
 }
 
+func NewMockRepo() *mockRepo {
+	return &mockRepo{
+		meetings: make([]domain.Meeting, 0),
+	}
+}
 func (repo *mockRepo) Add(m domain.Meeting) (err error) {
 	repo.Mutex.Lock()
 	repo.meetings = append(repo.meetings, m)
@@ -52,9 +57,12 @@ func (repo *mockRepo) ListByParticipant(participantEmail string, skip int64, lim
 }
 func (repo *mockRepo) Count(start time.Time, end time.Time, emails []string) (count int64, err error) {
 	repo.Mutex.Lock()
-	meetings, err := repo.List(start, end, 0, 0)
-	if err != nil {
-		return
+
+	var meetings []domain.Meeting
+	for _, m := range repo.meetings {
+		if m.StartTime.After(start) && m.StartTime.Before(end) {
+			meetings = append(meetings, m)
+		}
 	}
 
 	partEmailMap := make(map[string]struct{})
