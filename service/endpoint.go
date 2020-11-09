@@ -3,6 +3,7 @@ package service
 import (
 	"gethelpnow/cerror"
 	"gethelpnow/domain"
+	"gethelpnow/pagination"
 	ctransport "gethelpnow/transport"
 	"time"
 )
@@ -36,6 +37,7 @@ func makeAddEndpoint(svc Service) ctransport.Endpoint {
 type listRequest struct {
 	Start time.Time `schema:"start" url:"start"`
 	End   time.Time `schema:"end" url:"end"`
+	pagination.Pagination
 }
 
 type listResponse struct {
@@ -49,13 +51,14 @@ func makeListEndpoint(svc Service) ctransport.Endpoint {
 		if !ok {
 			return nil, ErrBadRequest
 		}
-		meetings, err := svc.List(req.Start, req.End)
+		meetings, err := svc.List(req.Start, req.End, req.Pagination)
 		return listResponse{Meetings: meetings, Err: err}, nil
 	}
 }
 
 type listByParticipantRequest struct {
 	Email string `schema:"email" url:"email"`
+	pagination.Pagination
 }
 type listByParticipantResponse struct {
 	Meetings []domain.Meeting `json:"meetings"`
@@ -68,7 +71,7 @@ func makeListByParticipantEndpoint(svc Service) ctransport.Endpoint {
 		if !ok {
 			return nil, ErrBadRequest
 		}
-		meetings, err := svc.ListByParticipant(req.Email)
+		meetings, err := svc.ListByParticipant(req.Email, req.Pagination)
 		return listByParticipantResponse{Meetings: meetings, Err: err}, nil
 	}
 }

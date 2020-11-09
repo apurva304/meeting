@@ -40,7 +40,7 @@ func MakeHandler(svc Service) http.Handler {
 	r.Handle("/meeting/{id}", getHandler).Methods(http.MethodGet)
 	r.Handle("/meeting", listByParticipantHandler).Methods(http.MethodGet)
 
-	return nil
+	return r
 }
 func decodeAddRequest(r *http.Request) (request interface{}, err error) {
 	var req addRequest
@@ -53,7 +53,7 @@ func decodeAddRequest(r *http.Request) (request interface{}, err error) {
 
 func encodeAddResponse(w http.ResponseWriter, response interface{}) error {
 	if e, ok := response.(addResponse); ok && e.Err != nil {
-		return ctransport.EncodeError(e.Err, w)
+		return e.Err
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -71,7 +71,7 @@ func decodeListRequest(r *http.Request) (request interface{}, err error) {
 
 func encodeListResponse(w http.ResponseWriter, response interface{}) error {
 	if e, ok := response.(listResponse); ok && e.Err != nil {
-		return ctransport.EncodeError(e.Err, w)
+		return e.Err
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -89,7 +89,7 @@ func decodeListByParticipantRequest(r *http.Request) (request interface{}, err e
 
 func encodeListByParticipantResponse(w http.ResponseWriter, response interface{}) error {
 	if e, ok := response.(listByParticipantResponse); ok && e.Err != nil {
-		return ctransport.EncodeError(e.Err, w)
+		return e.Err
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -110,7 +110,7 @@ func decodeGetRequest(r *http.Request) (request interface{}, err error) {
 
 func encodeGetResponse(w http.ResponseWriter, response interface{}) error {
 	if e, ok := response.(getResponse); ok && e.Err != nil {
-		return ctransport.EncodeError(e.Err, w)
+		return e.Err
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")

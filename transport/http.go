@@ -11,7 +11,7 @@ type ResponseEncoder func(w http.ResponseWriter, response interface{}) error
 type RequestDecoder func(r *http.Request) (request interface{}, err error)
 
 // encode errors from business-logic
-func EncodeError(err error, w http.ResponseWriter) error {
+func encodeError(err error, w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
 	var status int
@@ -26,27 +26,28 @@ func EncodeError(err error, w http.ResponseWriter) error {
 		Error: err.Error(),
 	}
 
+	json.NewEncoder(w).Encode(&errWarp)
 	w.WriteHeader(status)
-	return json.NewEncoder(w).Encode(&errWarp)
+	return nil
 }
 
 func NewHandler(endpoint Endpoint, endcode ResponseEncoder, decode RequestDecoder) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		request, err := decode(r)
 		if err != nil {
-			EncodeError(err, w)
+			encodeError(err, w)
 			return
 		}
 
 		response, err := endpoint(request)
 		if err != nil {
-			EncodeError(err, w)
+			encodeError(err, w)
 			return
 		}
 
 		err = endcode(w, response)
 		if err != nil {
-			EncodeError(err, w)
+			encodeError(err, w)
 			return
 		}
 	}

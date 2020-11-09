@@ -14,8 +14,9 @@ var (
 type MeetingRepository interface {
 	Add(m Meeting) (err error)
 	Get(id string) (meeting Meeting, err error)
-	List(start time.Time, end time.Time) (meetings []Meeting, err error)
-	ListByParticipant(participantEmail string) (meetings []Meeting, err error)
+	List(start time.Time, end time.Time, skip int64, limit int64) (meetings []Meeting, err error)
+	ListByParticipant(participantEmail string, skip int64, limit int64) (meetings []Meeting, err error)
+	Count(start time.Time, end time.Time, emails []string) (count int64, err error)
 }
 
 type Meeting struct {

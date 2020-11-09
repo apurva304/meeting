@@ -2,6 +2,7 @@ package service
 
 import (
 	"gethelpnow/domain"
+	"gethelpnow/pagination"
 	"log"
 	"time"
 )
@@ -31,7 +32,7 @@ func (svc *loggingService) Add(title string, start time.Time, end time.Time, par
 	}(time.Now())
 	return svc.Service.Add(title, start, end, participants)
 }
-func (svc *loggingService) List(start time.Time, end time.Time) (meetings []domain.Meeting, err error) {
+func (svc *loggingService) List(start time.Time, end time.Time, page pagination.Pagination) (meetings []domain.Meeting, err error) {
 	defer func(begin time.Time) {
 		svc.logger.Println(
 			"method", "List",
@@ -41,9 +42,9 @@ func (svc *loggingService) List(start time.Time, end time.Time) (meetings []doma
 			"err", err,
 		)
 	}(time.Now())
-	return svc.Service.List(start, end)
+	return svc.Service.List(start, end, page)
 }
-func (svc *loggingService) ListByParticipant(email string) (meetings []domain.Meeting, err error) {
+func (svc *loggingService) ListByParticipant(email string, page pagination.Pagination) (meetings []domain.Meeting, err error) {
 	defer func(begin time.Time) {
 		svc.logger.Println(
 			"method", "ListByParticipant",
@@ -52,7 +53,7 @@ func (svc *loggingService) ListByParticipant(email string) (meetings []domain.Me
 			"err", err,
 		)
 	}(time.Now())
-	return svc.Service.ListByParticipant(email)
+	return svc.Service.ListByParticipant(email, page)
 }
 func (svc *loggingService) Get(id string) (meeting domain.Meeting, err error) {
 	defer func(begin time.Time) {
